@@ -48,6 +48,14 @@ public class SemanticsTests extends CompilerTests {
     }
 
     @Test
+    public void testRedefineFunction() {
+        final String code = ("int foo() {return 3;}\n" +
+                             "int foo() {return 0;}\n" +
+                             "int main() {}");
+        runExpectSemanticException("name", code, new Location("name", 2, 5));
+    }
+
+    @Test
     public void testBadFunctionDefinition() {
         final String code = ("int foo(char);\n" +
                              "int foo(int a) {\n" +
@@ -338,5 +346,23 @@ public class SemanticsTests extends CompilerTests {
                              "  return 0;\n" +
                              " }}");
         runIntegrationTest("name", code);
+    }
+
+    @Test
+    public void testContinueOutsideLoop() {
+        // Bonus exercise
+        final String code = ("int main() {\n" +
+                             "continue;\n" +
+                             "}");
+        runExpectSemanticException("name", code, new Location("name", 2, 1));
+    }
+
+    @Test
+    public void testBreakOutsideLoop() {
+        // Bonus exercise
+        final String code = ("int main() {\n" +
+                             "break;\n" +
+                             "}");
+        runExpectSemanticException("name", code, new Location("name", 2, 1));
     }
 }
