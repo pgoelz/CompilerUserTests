@@ -48,6 +48,16 @@ public class SemanticsTests extends CompilerTests {
     }
 
     @Test
+    public void testBadFunctionDefinition() {
+        final String code = ("int foo(char);\n" +
+                             "int foo(int a) {\n" +
+                             "return a;\n" +
+                             "}\n" +
+                             "int main() {}");
+        runExpectSemanticException("badredec", code, new Location("badredec", 2, 5));
+    }
+
+    @Test
     public void testFaculty() {
         final String code = ("int fac(int x) {\n" +
                              "if (x < 1) return 1;\n" +
@@ -268,6 +278,14 @@ public class SemanticsTests extends CompilerTests {
     }
 
     @Test
+    public void testParamnameEqualsFunctionname() {
+        // Unfortunately, this is legal C.
+        final String code = ("int foo(int foo) {}\n" +
+                             "int main() {}");
+        runIntegrationTest("name", code);
+    }
+
+    @Test
     public void testDuplicateArgumentName() {
         final String code = ("int main(int a, char** a) {}");
         runExpectSemanticException("name", code, new Location("name", 1, 24));
@@ -290,6 +308,35 @@ public class SemanticsTests extends CompilerTests {
                              "  int c = sizeof(c);\n" +
                              "  return c;\n" +
                              "}");
+        runIntegrationTest("name", code);
+    }
+
+    @Test
+    public void testNonScalarCondition() {
+        final String code = ("void foo() {}\n" +
+                             "int main() {\n" +
+                             " if (foo()) {\n" +
+                             "  return 0;\n" +
+                             " }\n" +
+                             "}");
+        runExpectSemanticException("name", code, new Location("name", 3, 2)); // Or 3, 6?
+    }
+
+    @Test
+    public void testNonScalarConditionWhile() {
+        final String code = ("void foo() {}\n" +
+                             "int main() {\n" +
+                             " while (foo()) {}\n" +
+                             "}");
+        runExpectSemanticException("name", code, new Location("name", 3, 2)); // Or 3, 9?
+    }
+
+    @Test
+    public void testInnerReturn() {
+        final String code = ("int main() {\n" +
+                             " while (1) {\n" +
+                             "  return 0;\n" +
+                             " }}");
         runIntegrationTest("name", code);
     }
 }
