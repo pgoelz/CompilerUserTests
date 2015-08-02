@@ -131,12 +131,21 @@ public class SemanticsTests extends CompilerTests {
 
     @Test
     public void testIntegerRange5() {
+        // Check what happens if the integer constant is too big to fit into a java long
         final String code = ("int main() {\n" +
                              "int a = 18446744073709551616;\n" + // 2^64
                              "}");
         runExpectSemanticException("name", code, new Location("name", 2, 9));
     }
 
+    @Test
+    public void testIntegerRange6() {
+        // If the constant integer value is stored in a java integer, this might be seen as zero and therefor ignored
+        final String code = ("int main() {\n" +
+                             "int a = 4294967296;\n" + // 2^32
+                             "}");
+        runExpectSemanticException("name", code, new Location("name", 2, 9));
+    }
     @Test
     public void testExampleSpec1() {
         final String code = ("int globalVariable;\n" +
@@ -231,6 +240,16 @@ public class SemanticsTests extends CompilerTests {
     }
 
     @Test
+    public void compareIntToPointer() {
+        final String code = ("int main() {\n" +
+                             "\tint a = 3;\n" +
+                             "\tint* b = &a;\n" +
+                             "\treturn (3 < b);\n" +
+                             "}");
+        runExpectSemanticException("name", code, new Location("name", 4, 12));
+    }
+
+    @Test
     public void testBadMainType() {
         final String code = ("char main() {}");
         runExpectSemanticException("name", code, new Location("name", 1, 6));
@@ -259,6 +278,16 @@ public class SemanticsTests extends CompilerTests {
         // This is valid C code. The result is not specified, but the behaviour is not undefined.
         final String code = ("int main() {\n" +
                              "  int c = c + 3;\n" +
+                             "  return c;\n" +
+                             "}");
+        runIntegrationTest("name", code);
+    }
+
+    @Test
+    public void testUseInAssignment2() {
+        // This is valid C code. The result is not specified, but the behaviour is not undefined.
+        final String code = ("int main() {\n" +
+                             "  int c = sizeof(c);\n" +
                              "  return c;\n" +
                              "}");
         runIntegrationTest("name", code);
