@@ -319,4 +319,123 @@ public class CodeGenTests extends CompilerTests {
         final MarsUtil mars = prepareCode(code);
         assertEquals(1, mars.run());
     }
+
+    @Test
+    public void testBinaryIdentities() throws MarsException {
+        final String code = "void* get_scratch();\n" +
+                            "int test_identities() {\n" +
+                            "  int* a = get_scratch();\n" +
+                            "  if (a != a) return 0;\n" +
+                            "  if (((a + 3) - 3) != a) return 1;\n" +
+                            "  if (((a - 5) + 5) != a) return 2;\n" +
+                            "  if (a - a != 0) return 3;\n" +
+                            "  if ((a + 11) - a != 11) return 4;\n" +
+                            "  \n" +
+                            "  char* b = \"Wuerzburg\";\n" +
+                            "  if (((b + 3) - 3) != b) return 5;\n" +
+                            "  if (((b - 5) + 5) != b) return 6;\n" +
+                            "  if (b - b != 0) return 7;\n" +
+                            "  if ((b - 4) - b != -4) return 8;\n" +
+                            "  \n" +
+                            "  int c = 13;\n" +
+                            "  int d = -423;\n" +
+                            "  if (c + d != d + c) return 9;\n" +
+                            "  if (c - d != -(d - c)) return 10;\n" +
+                            "  if ((c * d) / d != c) return 11;\n" +
+                            "  if (c < d) return 12;\n" +
+                            "  if (d < c) {\n" +
+                            "    if (c == d) return 14;\n" +
+                            "    if (c != c) return 15;\n" +
+                            "    if (d != d) return 16;\n" +
+                            "    return -1;\n" +
+                            "  }\n" +
+                            "  return 13;\n" +
+                            "}\n" +
+                            "int main() {\n" +
+                            "  return test_identities();\n" +
+                            "}";
+        final MarsUtil mars = prepareCode(code);
+        assertEquals(-1, mars.run());
+    }
+
+    @Test
+    public void testTripleAssignment() throws MarsException {
+        // GCC says: implicit conversion from 'int' to 'char' changes value from 256 to 0
+        final String code = "int main() {\n" +
+                            "  char c;\n" +
+                            "  int a = c = 256;\n" +
+                            "  return (a - c);\n" +
+                            "}";
+        final MarsUtil mars = prepareCode(code);
+        assertEquals(0, mars.run());
+    }
+
+    @Test
+    public void testContinue() throws  MarsException {
+        final String code = "int test_continue() {\n" +
+                            "  int i = 0;\n" +
+                            "  while (1) {\n" +
+                            "    char a;\n" +
+                            "    int* b;\n" +
+                            "    if (i < 37) {\n" +
+                            "      i = i + 1;\n" +
+                            "      continue;\n" +
+                            "    }\n" +
+                            "    return i; \n" +
+                            "  }\n" +
+                            "  return 2;\n" +
+                            "}\n" +
+                            "int main() {\n" +
+                            "  return test_continue();\n" +
+                            "}";
+        final MarsUtil mars = prepareCode(code);
+        assertEquals(37, mars.run());
+    }
+
+    @Test
+    public void testBreak() throws  MarsException {
+        final String code = "int test_break() {\n" +
+                            "  int i = 20;\n" +
+                            "  while (i = i - 1) {\n" +
+                            "    if (i == 13) {\n" +
+                            "      char c = 'a';\n" +
+                            "      break;\n" +
+                            "    }\n" +
+                            "  }\n" +
+                            "  return i;\n" +
+                            "}\n" +
+                            "int main() {\n" +
+                            "  int b = 5;\n" +
+                            "  return b + test_break() + 5;\n" +
+                            "}";
+        final MarsUtil mars = prepareCode(code);
+        assertEquals(23, mars.run());
+    }
+
+    @Test
+    public void testNestedBreak() throws  MarsException {
+        final String code = "int test_nested_break(int max) {\n" +
+                            "  int c = 0;\n" +
+                            "  int i = 1;\n" +
+                            "  while (i < max + 1) {\n" +
+                            "    int j = 1;\n" +
+                            "    while (1) {\n" +
+                            "      c = c + 1;\n" +
+                            "      if (j == i) break;\n" +
+                            "      j = j + 1;\n" +
+                            "    }\n" +
+                            "    if (j != i) return -1;\n" +
+                            "    if (i == max) break;\n" +
+                            "    int y = 3;\n" +
+                            "    i = i + 1;\n" +
+                            "  }\n" +
+                            "  if (i != max) return -2;\n" +
+                            "  return c;\n" +
+                            "}\n" +
+                            "int main() {\n" +
+                            "  return test_nested_break(15);\n" +
+                            "}";
+        final MarsUtil mars = prepareCode(code);
+        assertEquals(120, mars.run());
+    }
 }
