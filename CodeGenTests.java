@@ -371,7 +371,7 @@ public class CodeGenTests extends CompilerTests {
     }
 
     @Test
-    public void testContinue() throws  MarsException {
+    public void testContinue() throws MarsException {
         final String code = "int test_continue() {\n" +
                             "  int i = 0;\n" +
                             "  while (1) {\n" +
@@ -393,7 +393,7 @@ public class CodeGenTests extends CompilerTests {
     }
 
     @Test
-    public void testBreak() throws  MarsException {
+    public void testBreak() throws MarsException {
         final String code = "int test_break() {\n" +
                             "  int i = 20;\n" +
                             "  while (i = i - 1) {\n" +
@@ -413,7 +413,7 @@ public class CodeGenTests extends CompilerTests {
     }
 
     @Test
-    public void testNestedBreak() throws  MarsException {
+    public void testNestedBreak() throws MarsException {
         final String code = "int test_nested_break(int max) {\n" +
                             "  int c = 0;\n" +
                             "  int i = 1;\n" +
@@ -437,5 +437,25 @@ public class CodeGenTests extends CompilerTests {
                             "}";
         final MarsUtil mars = prepareCode(code);
         assertEquals(120, mars.run());
+    }
+
+    @Test
+    public void testLargeInteger() throws MarsException {
+        final String code = "int main() {\n" +
+                            "  return -2147483648;\n" +
+                            "}";
+        final MarsUtil mars = prepareCode(code);
+        assertEquals(-2147483648, mars.run());
+    }
+
+    @Test
+    public void testReturnCharAsInt() throws MarsException {
+        final String code = "int main() {\n" +
+                            "  int a = 12345;\n" +
+                            "  char c = a;\n" +
+                            "  return c;\n" +
+                            "}";
+        final MarsUtil mars = prepareCode(code);
+        assertEquals(57, mars.run());
     }
 }
