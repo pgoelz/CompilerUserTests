@@ -458,4 +458,59 @@ public class CodeGenTests extends CompilerTests {
         final MarsUtil mars = prepareCode(code);
         assertEquals(57, mars.run());
     }
+
+    @Test
+    public void testNegation() throws MarsException {
+        // BONUS
+        final String code = "int main() {\n" +
+                            "  char a = 0;\n" +
+                            "  if ((!a) != 1) return 1;\n" +
+                            "  if (!(!a)) return 2;\n" +
+                            "  if (!a) return 3;\n" +
+                            "  return 4;\n" +
+                            "}";
+        final MarsUtil mars = prepareCode(code);
+        assertEquals(3, mars.run());
+    }
+
+    @Test
+    public void testNegation2() throws MarsException {
+        // BONUS
+        final String code = "int main() {\n" +
+                            "  int a = -23423;\n" +
+                            "  if ((!a) != 0) return 1;\n" +
+                            "  if ((!(!a)) != 1) return 2;\n" +
+                            "  if (!a) return 3;\n" +
+                            "  return 4;\n" +
+                            "}";
+        final MarsUtil mars = prepareCode(code);
+        assertEquals(4, mars.run());
+    }
+
+    @Test
+    public void testAndOr1() throws MarsException {
+        // BONUS
+        final String code = "int diverge() {\n" +
+                            "  while (1);\n" +
+                            "}\n" +
+                            "int main() {\n" +
+                            "  if (0 && diverge()) return 1;\n" +
+                            "  if (1 || diverge()) return 2;\n" +
+                            "  return 3;\n" +
+                            "}";
+        final MarsUtil mars = prepareCode(code);
+        assertEquals(2, mars.run());
+    }
+
+    @Test
+    public void testAndOr2() throws MarsException {
+        // BONUS
+        final String code = "int main() {\n" +
+                            "  if ((-453 && 538593) != 1) return 1;\n" +
+                            "  if ((0 || -46934) != 1) return 2;\n" +
+                            "  return 3;\n" +
+                            "}";
+        final MarsUtil mars = prepareCode(code);
+        assertEquals(3, mars.run());
+    }
 }

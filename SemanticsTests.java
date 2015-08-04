@@ -14,14 +14,14 @@ import static org.junit.Assert.fail;
 public class SemanticsTests extends CompilerTests {
     private void runIntegrationTest(final String name, final String code) {
         final StringReader r = new StringReader(code);
-        final Lexer        l = new Lexer(diagnostic, r, name);
+        final Lexer l = new Lexer(diagnostic, r, name);
         compiler.parseTranslationUnit(l);
         compiler.checkSemantics();
     }
 
     private void runExpectSemanticException(final String name, final String code, Locatable loc) {
         final StringReader r = new StringReader(code);
-        final Lexer        l = new Lexer(diagnostic, r, name);
+        final Lexer l = new Lexer(diagnostic, r, name);
         compiler.parseTranslationUnit(l);
         try {
             compiler.checkSemantics();
@@ -164,6 +164,7 @@ public class SemanticsTests extends CompilerTests {
                              "}");
         runExpectSemanticException("name", code, new Location("name", 2, 9));
     }
+
     @Test
     public void testExampleSpec1() {
         final String code = ("int globalVariable;\n" +
@@ -364,5 +365,15 @@ public class SemanticsTests extends CompilerTests {
                              "break;\n" +
                              "}");
         runExpectSemanticException("name", code, new Location("name", 2, 1));
+    }
+
+    @Test
+    public void testNotNonSkalar() {
+        // Bonus exercise
+        final String code = ("void test() {}\n" +
+                             "int main() {\n" +
+                             "  if (!test()) return 1;\n" +
+                             "}");
+        runExpectSemanticException("name", code, new Location("name", 3, 7));
     }
 }
