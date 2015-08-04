@@ -17,6 +17,15 @@ public class CodeGenTests extends CompilerTests {
     }
 
     @Test
+    public void testConditional() throws MarsException {
+        final String code = "int main() {\n" +
+                            "  return (0 ? 1 : (53 ? 2 : 3));\n" +
+                            "}";
+        final MarsUtil mars = prepareCode(code);
+        assertEquals(2, mars.run());
+    }
+
+    @Test
     public void testInnerReturn() throws MarsException {
         final String code = "int foo(int x) {\n" +
                             "  int c;\n" +
@@ -250,6 +259,23 @@ public class CodeGenTests extends CompilerTests {
                             "  if (a != b) return 0;\n" +
                             "  if (-1);\n" +
                             "  else return 0;\n" +
+                            "  return 1;\n" +
+                            "}\n" +
+                            "int main() {\n" +
+                            "  return test_comparison();\n" +
+                            "}";
+        final MarsUtil mars = prepareCode(code);
+        assertEquals(1, mars.run());
+    }
+
+    @Test
+    public void testWeakInequalities() throws MarsException {
+        final String code = "int test_comparison()\n" +
+                            "{\n" +
+                            "  if ((3 >= 3) != 1) return 2;\n" +
+                            "  if ((3 <= 3) != 1) return 3;\n" +
+                            "  if ((0 >= -1) != 1) return 4;\n" +
+                            "  if ((-1 <= 0) != 1) return 5;\n" +
                             "  return 1;\n" +
                             "}\n" +
                             "int main() {\n" +

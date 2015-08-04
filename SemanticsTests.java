@@ -32,6 +32,31 @@ public class SemanticsTests extends CompilerTests {
     }
 
     @Test
+    public void testDeclareVoid() {
+        final String code = ("int main() {\n" +
+                             "void a;\n" +
+                             "}");
+        runExpectSemanticException("name", code, new Location("name", 2, 6));
+    }
+
+    @Test
+    public void testRedeclareVariable() {
+        final String code = ("int main() {\n" +
+                             "int a;\n" +
+                             "int a = 3;\n" +
+                             "}");
+        runExpectSemanticException("name", code, new Location("name", 3, 5));
+    }
+
+    @Test
+    public void testDeclareNonconvertible() {
+        final String code = ("int main() {\n" +
+                             "int* a = 3;\n" +
+                             "}");
+        runExpectSemanticException("name", code, new Location("name", 2, 6));
+    }
+
+    @Test
     public void testRedeclareFunction() {
         final String code = ("int foo(char);\n" +
                              "int foo(char);\n" +
